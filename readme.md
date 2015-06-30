@@ -17,44 +17,65 @@ myApp.controller('myController', [
     // controller function
     function($scope, $asyncAjax) {
 
-        // ajax request json
-        var ajax = {
+        var logRequestEvent = function(event) {
+            $scope.requestLog += new Date() + ' :: ' + event.name + '\n';
+        };
+
+        // request json
+        $scope.helloworldAjax = {
             name: 'helloAjax',
             method: 'GET',
             url: 'dummys/a.json'
         };
 
-        var logRequestEvent = function(event) {
-            $scope.requestLog += new Date() + ' ' + event.name + '\n';
+        $scope.bAjax = {
+            name: 'bAjax',
+            method: 'GET',
+            url: 'dummys/b.json'
         };
 
         $scope.requestLog = '';
 
-        // bind controller event
         $asyncAjax
-            .onStart(ajax.name, logRequestEvent)
-            .onProgress(ajax.name, logRequestEvent)
-            .onFinished(ajax.name, logRequestEvent)
-            .onError(ajax.name, logRequestEvent);
+            .onStart($scope.helloworldAjax.name, logRequestEvent)
+            .onProgress($scope.helloworldAjax.name, logRequestEvent)
+            .onFinished($scope.helloworldAjax.name, logRequestEvent)
+            .onError($scope.helloworldAjax.name, logRequestEvent);
 
-        // request using asyncAjax
-        $asyncAjax.asyncAjaxRequest(ajax,
-            // when success
-            function(response) {
-                $scope.requestName = $asyncAjax.getCurrentRequestName();
+        $asyncAjax
+            .onStart($scope.bAjax.name, logRequestEvent)
+            .onProgress($scope.bAjax.name, logRequestEvent)
+            .onFinished($scope.bAjax.name, logRequestEvent)
+            .onError($scope.bAjax.name, logRequestEvent);
+
+        $asyncAjax
+            .onAllOver(logRequestEvent);
+
+        $asyncAjax.asyncAjaxRequest($scope.helloworldAjax, {
+            success: function(response) {
+                $scope.currentRequest = $asyncAjax.getCurrentRequestName();
                 $scope.response = response;
-
             },
-            // when error
-            function(response) {
+            error: function(response) {
+                console.log(response);
+            },
+            finished: function(response) {
+                console.log("A finished");
+            }
+        });
+
+        $asyncAjax.asyncAjaxRequest($scope.bAjax, {
+            success: function(response) {
+                $scope.arrayData = response;
+            },
+            error: function(response) {
                 console.log(response);
 
             },
-            // request finished
-            function(response) {
-                console.log("hello");
+            finished: function(response) {
+                console.log("B finished");
             }
-        );
+        });
     }
 ])
 ```
