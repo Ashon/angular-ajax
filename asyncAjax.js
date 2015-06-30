@@ -36,7 +36,7 @@
     // $ajaxRequest angular Service
     .service('$asyncAjax', [
 
-        // spectrum.ajaxRequest service dependencies
+        // $ajaxRequest service dependencies
         '$rootScope', '$http', '$q',
 
         function($rootScope, $http, $q) {
