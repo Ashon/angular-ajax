@@ -2,14 +2,12 @@
 AngularJS Async Ajax Request Wrapper
 
 ## Usage
-- Add 'asyncAjax' module to your angular app
-
+#### Add 'asyncAjax' module to your angular app
 ```js
 var myApp = angular.module('myApp', ['asyncAjax'])
 ```
 
-- get '$asyncAjax' Service to your controller
-
+#### get '$asyncAjax' Service to your controller
 ```js
 myApp.controller('myController', [
 
