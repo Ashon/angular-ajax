@@ -82,21 +82,21 @@ myApp.controller('myController', [
 #### Request Result
 ```
 # Current Req Name
-bAjax
+    bAjax
 # A Req
-{"name":"helloAjax","method":"GET","url":"dummys/a.json","timeout":{}}
+    {"name":"helloAjax","method":"GET","url":"dummys/a.json","timeout":{}}
 # A Data
-{"data":{"hello":"world"}}
+    {"data":{"hello":"world"}}
 # B Req
-{"name":"bAjax","method":"GET","url":"dummys/b.json","timeout":{}}
+    {"name":"bAjax","method":"GET","url":"dummys/b.json","timeout":{}}
 # B Data
-{"data":[1,2,3,4]}
+    {"data":[1,2,3,4]}
 # Broadcast Log
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:start
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:progress
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:start
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:progress
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:finished
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:finished
-Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:allOvered
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:start
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:progress
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:start
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:progress
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:finished
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:finished
+    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:allOvered
 ```
