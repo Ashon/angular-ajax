@@ -19,11 +19,17 @@
         START: 'start',
         PROGRESS: 'progress',
         FINISHED: 'finished',
+        ALLOVER: 'allOvered',
         ERROR: 'error'
     };
 
     var getBroadCastName = function(status, requestName) {
-        return [BROADCAST_PREFIX, requestName, status].join(MSG_DELIMITER);
+        var logItems = [BROADCAST_PREFIX];
+        if(requestName)
+            logItems.push(requestName);
+        logItems.push(status);
+
+        return logItems.join(MSG_DELIMITER);
     };
 
     var isFunction = function(fn) {
@@ -49,7 +55,8 @@
             var currentRequestName = '';
 
             var broadcastStatus = function(status, requestName) {
-                $rootScope.$broadcast(getBroadCastName(status, requestName));
+                var msg = getBroadCastName(status, requestName);
+                $rootScope.$broadcast(msg);
             };
 
             // asynchronous request queue
@@ -75,15 +82,15 @@
 
                 // finished wrapper
                 var whenFinished = function(response) {
-                    // if request finished, then decrease request count
-                    countInProgress--;
-
-                    // check the count and broadcast
-                    if(countInProgress === 0)
-                        broadcastStatus(REQUEST_STATUS.FINISHED, json.name);
-
+                    broadcastStatus(REQUEST_STATUS.FINISHED, json.name);
                     if(isFunction(finished))
                         finished(response);
+
+                    // if request finished, then decrease request count
+                    countInProgress--;
+                    // check the count and broadcast
+                    if(countInProgress === 0)
+                        broadcastStatus(REQUEST_STATUS.ALLOVER);
                 };
 
                 if(json.timeout === undefined)
@@ -129,8 +136,14 @@
              * @returns
              *     <$http> registerAsyncTask :
              */
-            this.asyncAjaxRequest = function(json, success, error, finished) {
-                registerAsyncTask(ajaxRequest(json, success, error, finished));
+            this.asyncAjaxRequest = function(json, requestHandler) {
+                registerAsyncTask(
+                    ajaxRequest(json,
+                        requestHandler.success,
+                        requestHandler.error,
+                        requestHandler.finished
+                    )
+                );
                 return this;
             };
 
@@ -153,6 +166,11 @@
             this.onProgress = getBroadcastHandler(REQUEST_STATUS.PROGRESS);
             this.onFinished = getBroadcastHandler(REQUEST_STATUS.FINISHED);
             this.onError = getBroadcastHandler(REQUEST_STATUS.ERROR);
+
+            this.onAllOver = function(callback) {
+                $rootScope.$on(getBroadCastName(REQUEST_STATUS.ALLOVER), callback);
+                return service;
+            };
 
         }
     ]);
