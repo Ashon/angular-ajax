@@ -1,12 +1,12 @@
 /*
- *   AngularJS AsyncAjax v0.0.2
+ *   AngularJS AsyncAjax v0.0.3
  *
  *   @author ashon
  *
  *   MIT Licenced.
  */
 
-(function() {
+(function(angular) {
 
     'use strict';
 
@@ -25,7 +25,9 @@
     };
 
     var getBroadCastName = function(status, requestName) {
+
         var logItems = [BROADCAST_PREFIX];
+
         if(requestName)
             logItems.push(requestName);
         logItems.push(status);
@@ -189,4 +191,4 @@
         }
     ]);
 
-})();
+})(angular);
