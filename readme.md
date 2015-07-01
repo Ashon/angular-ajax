@@ -22,60 +22,61 @@ myApp.controller('myController', [
         };
 
         // request json
-        $scope.helloworldAjax = {
-            name: 'helloAjax',
+        $scope.reqA = {
+            name: 'reqA',
             method: 'GET',
-            url: 'dummys/a.json'
+            url: '/dummy'
         };
 
-        $scope.bAjax = {
-            name: 'bAjax',
+        // other ajax request
+        $scope.reqB = {
+            name: 'reqB',
             method: 'GET',
-            url: 'dummys/b.json'
+            url: '/dummy'
         };
 
         $scope.requestLog = '';
 
+        // requests names
+        var requestNames = [$scope.reqA.name, $scope.reqB.name];
+
+        // controller initialize function
+        $scope.initialize = function() {
+            // send ajax request to server when initializing controller.
+            $asyncAjax
+
+                // send request A
+                .request($scope.reqA, {
+                    success: function(response) {
+                        $scope.resA = response;
+                    }
+                })
+
+                // send request B
+                .request($scope.reqB, {
+                    success: function(response) {
+                        $scope.resB = response;
+                    }
+                });
+        };
+
+        // if request all of A and B is finished, summarize data from responses..
+        $scope.summarize = function(event) {
+            $scope.summary = $scope.resA.exec + $scope.resB.exec;
+            logRequestEvent(event);
+        };
+
+        // bind event on async Ajax
         $asyncAjax
-            .onStart($scope.helloworldAjax.name, logRequestEvent)
-            .onProgress($scope.helloworldAjax.name, logRequestEvent)
-            .onFinished($scope.helloworldAjax.name, logRequestEvent)
-            .onError($scope.helloworldAjax.name, logRequestEvent);
+            .onStart(requestNames, logRequestEvent)
+            .onProgress(requestNames, logRequestEvent)
+            .onFinished(requestNames, logRequestEvent)
+            .onError(requestNames, logRequestEvent)
 
-        $asyncAjax
-            .onStart($scope.bAjax.name, logRequestEvent)
-            .onProgress($scope.bAjax.name, logRequestEvent)
-            .onFinished($scope.bAjax.name, logRequestEvent)
-            .onError($scope.bAjax.name, logRequestEvent);
+            // when all requests is finished, execute summarize function.
+            .onAllOver($scope.summarize);
 
-        $asyncAjax
-            .onAllOver(logRequestEvent);
-
-        $asyncAjax.asyncAjaxRequest($scope.helloworldAjax, {
-            success: function(response) {
-                $scope.currentRequest = $asyncAjax.getCurrentRequestName();
-                $scope.response = response;
-            },
-            error: function(response) {
-                console.log(response);
-            },
-            finished: function(response) {
-                console.log("A finished");
-            }
-        });
-
-        $asyncAjax.asyncAjaxRequest($scope.bAjax, {
-            success: function(response) {
-                $scope.arrayData = response;
-            },
-            error: function(response) {
-                console.log(response);
-
-            },
-            finished: function(response) {
-                console.log("B finished");
-            }
-        });
+        $scope.initialize();
     }
 ])
 ```
