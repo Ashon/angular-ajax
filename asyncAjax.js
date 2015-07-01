@@ -20,7 +20,8 @@
         PROGRESS: 'progress',
         FINISHED: 'finished',
         ALLOVER: 'allOvered',
-        ERROR: 'error'
+        ERROR: 'error',
+        ALLCANCELED: 'allCanceled'
     };
 
     var getBroadCastName = function(status, requestName) {
@@ -46,6 +47,7 @@
         '$rootScope', '$http', '$q',
 
         function($rootScope, $http, $q) {
+            var service = this;
 
             // async task Queue
             var asyncQueue = $q.when(true);
@@ -125,18 +127,19 @@
                 taskCanceler.resolve();
                 // revolve
                 taskCanceler = $q.defer();
+                asyncQueue = $q.when(true);
 
-                return this;
+                return service;
             };
 
-            /** asyncAjaxRequest
+            /** request
              *
              * @description
              *     AjaxRequestService's asynchronous ajax request.
              * @returns
              *     <$http> registerAsyncTask :
              */
-            this.asyncAjaxRequest = function(json, requestHandler) {
+            this.request = function(json, requestHandler) {
                 registerAsyncTask(
                     ajaxRequest(json,
                         requestHandler.success,
@@ -144,33 +147,44 @@
                         requestHandler.finished
                     )
                 );
-                return this;
+
+                return service;
             };
 
             this.then = function(task) {
                 asyncQueue.then(task);
-                return this;
-            };
 
-            var service = this;
-
-            // broadcast handler combinator
-            var getBroadcastHandler = function(status) {
-                return function(requestName, callback) {
-                    $rootScope.$on(getBroadCastName(status, requestName), callback);
-                    return service;
-                };
-            };
-
-            this.onStart = getBroadcastHandler(REQUEST_STATUS.START);
-            this.onProgress = getBroadcastHandler(REQUEST_STATUS.PROGRESS);
-            this.onFinished = getBroadcastHandler(REQUEST_STATUS.FINISHED);
-            this.onError = getBroadcastHandler(REQUEST_STATUS.ERROR);
-
-            this.onAllOver = function(callback) {
-                $rootScope.$on(getBroadCastName(REQUEST_STATUS.ALLOVER), callback);
                 return service;
             };
+
+            // broadcast handler combinator
+            var getBroadcastHandler = function(status, hasRequestName) {
+                if(hasRequestName)
+                    return function(request, callback) {
+                        if(Object.prototype.toString.call(request) === '[object Array]')
+                            request.forEach(function(reqName) {
+                                $rootScope.$on(getBroadCastName(status, reqName), callback);
+                            });
+                        else
+                            $rootScope.$on(getBroadCastName(status, request), callback);
+
+                        return service;
+                    };
+                else
+                    return function(callback) {
+                        $rootScope.$on(getBroadCastName(status), callback);
+
+                        return service;
+                    };
+            };
+
+            // broadcast handler
+            this.onStart = getBroadcastHandler(REQUEST_STATUS.START, true);
+            this.onProgress = getBroadcastHandler(REQUEST_STATUS.PROGRESS, true);
+            this.onFinished = getBroadcastHandler(REQUEST_STATUS.FINISHED, true);
+            this.onError = getBroadcastHandler(REQUEST_STATUS.ERROR, true);
+            this.onAllCanceled = getBroadcastHandler(REQUEST_STATUS.ALLCANCELED, false);
+            this.onAllOver = getBroadcastHandler(REQUEST_STATUS.ALLOVER, false);
 
         }
     ]);
