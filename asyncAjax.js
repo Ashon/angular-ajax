@@ -1,9 +1,11 @@
-/*
+/**
  *   AngularJS AsyncAjax v0.0.3
  *
- *   @author ashon
+ *   @author
+ *       ashon
  *
- *   MIT Licenced.
+ *   @licence
+ *       MIT Licenced.
  */
 
 (function(angular) {
@@ -17,11 +19,10 @@
 
     var REQUEST_STATUS = {
         START: 'start',
-        PROGRESS: 'progress',
         FINISHED: 'finished',
-        ALLOVER: 'allOvered',
+        ALLFINISHED: 'allFinished',
         ERROR: 'error',
-        ALLCANCELED: 'allCanceled'
+        CANCELED: 'canceled'
     };
 
     var getBroadCastName = function(status, requestName) {
@@ -56,7 +57,6 @@
             var taskCanceler = $q.defer();
 
             var countInProgress = 0;
-            var currentRequestName = '';
 
             var broadcastStatus = function(status, requestName) {
                 var msg = getBroadCastName(status, requestName);
@@ -65,79 +65,89 @@
 
             // asynchronous request queue
             var registerAsyncTask = function(task) {
-                broadcastStatus(REQUEST_STATUS.PROGRESS, currentRequestName);
+
                 asyncQueue = asyncQueue.then(function() {
                     return task;
                 });
+
                 return asyncQueue;
             };
 
             // ajax request
             var ajaxRequest = function(json, success, error, finished) {
 
+                // deepcopy ajax json object
+                var ajaxJson = JSON.parse(JSON.stringify(json));
+
                 // error wrapper
                 var whenError = function(data, status, headers, config) {
-                    if(isFunction(error))
-                        error(data, status, headers, config);
+                    // error by canceler
+                    if(status === 0) {
+                        broadcastStatus(REQUEST_STATUS.CANCELED, ajaxJson.name);
+                    } else {
+                        if(isFunction(error))
+                            error(data, status, headers, config);
+                        // broadcasts when failed from prism_fe.. (not spectrum_API)
+                        broadcastStatus(REQUEST_STATUS.ERROR, ajaxJson.name);
+                    }
 
-                    // broadcasts when failed from prism_fe.. (not spectrum_API)
-                    broadcastStatus(REQUEST_STATUS.ERROR, json.name);
+                    countInProgress--;
                 };
 
                 // finished wrapper
                 var whenFinished = function(response) {
-                    broadcastStatus(REQUEST_STATUS.FINISHED, json.name);
                     if(isFunction(finished))
                         finished(response);
 
+                    broadcastStatus(REQUEST_STATUS.FINISHED, ajaxJson.name);
+
                     // if request finished, then decrease request count
                     countInProgress--;
+
                     // check the count and broadcast
                     if(countInProgress === 0)
-                        broadcastStatus(REQUEST_STATUS.ALLOVER);
+                        broadcastStatus(REQUEST_STATUS.ALLFINISHED);
                 };
 
-                if(json.timeout === undefined)
-                    json.timeout = taskCanceler.promise;
+                if(ajaxJson.timeout === undefined)
+                    ajaxJson.timeout = taskCanceler.promise;
 
-                currentRequestName = json.name;
-                broadcastStatus(REQUEST_STATUS.START, currentRequestName);
-
-                var request = $http(json);
                 countInProgress++;
 
+                broadcastStatus(REQUEST_STATUS.START, ajaxJson.name);
+
                 // bind status handler & return
-                return request
+                return $http(ajaxJson)
                     .success(success)
                     .error(whenError)
                     .then(whenFinished);
             };
 
-            this.getCurrentRequestName = function() {
-                return currentRequestName;
-            };
-
-            /** cancelAllRequests
+            /**
+             * @name
+             *     cancelPendingRequests
              *
              * @description
              *     Cancel all requests in progress.
              *     taskCanceler : timeout promise in AjaxRequestService.registerAsyncTask
              *     When this function call, resolves all requests force timeout event.
              */
-            this.cancelAllRequests = function() {
+            this.cancelPendingRequests = function() {
                 // resolve cancler
                 taskCanceler.resolve();
                 // revolve
                 taskCanceler = $q.defer();
-                asyncQueue = $q.when(true);
 
                 return service;
             };
 
-            /** request
+            /**
+             * @name
+             *     request
              *
              * @description
              *     AjaxRequestService's asynchronous ajax request.
+             *
              * @returns
              *     <$http> registerAsyncTask :
              */
@@ -153,6 +163,13 @@
                 return service;
             };
 
+            /**
+             * @name
+             *     then
+             *
+             * @description
+             *     Facade of Async Queue Promise's then().
+             */
             this.then = function(task) {
                 asyncQueue.then(task);
 
@@ -164,7 +181,7 @@
                 if(hasRequestName)
                     return function(request, callback) {
                         if(Object.prototype.toString.call(request) === '[object Array]')
-                            request.forEach(function(reqName) {
+                            angular.forEach(request, function(reqName) {
                                 $rootScope.$on(getBroadCastName(status, reqName), callback);
                             });
                         else
@@ -180,14 +197,12 @@
                     };
             };
 
-            // broadcast handler
+            // broadcast handlers
             this.onStart = getBroadcastHandler(REQUEST_STATUS.START, true);
-            this.onProgress = getBroadcastHandler(REQUEST_STATUS.PROGRESS, true);
             this.onFinished = getBroadcastHandler(REQUEST_STATUS.FINISHED, true);
             this.onError = getBroadcastHandler(REQUEST_STATUS.ERROR, true);
-            this.onAllCanceled = getBroadcastHandler(REQUEST_STATUS.ALLCANCELED, false);
-            this.onAllOver = getBroadcastHandler(REQUEST_STATUS.ALLOVER, false);
-
+            this.onCanceled = getBroadcastHandler(REQUEST_STATUS.CANCELED, true);
+            this.onAllFinished = getBroadcastHandler(REQUEST_STATUS.ALLFINISHED, false);
         }
     ]);
 
