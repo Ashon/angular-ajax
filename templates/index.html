@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Angular UI</title>
+    <script src="static/lib/angular.min.js"></script>
+    <script src="static/lib/asyncAjax.js"></script>
+    <script src="static/js/script.js"></script>
+
+</head>
+{% raw %}
+<body ng-app="myApp">
+    <div ng-controller="myController">
+        <button ng-click="reload()">Request</button>
+        <div>
+            <div style="float:left; width:50%">
+                <div>
+                    <strong># Request Info</strong>
+                    <pre>req A : {{ reqA }}</pre>
+                    <pre>req B : {{ reqB }}</pre>
+                    <pre>req C : {{ reqC }}</pre>
+                    <pre>req D : {{ reqD }}</pre>
+                    <pre>req E : {{ reqE }}</pre>
+                </div>
+                <div>
+                    <strong># Response Info</strong>
+                    <pre>res A : {{ resA }}</pre>
+                    <pre>res B : {{ resB }}</pre>
+                    <pre>res C : {{ resC }}</pre>
+                    <pre>res D : {{ resD }}</pre>
+                    <pre>res E : {{ resE }}</pre>
+                </div>
+                <div>
+                    <strong># Request Combined Features</strong>
+                    <pre>res AB  : {{ resAB }}</pre>
+                    <pre>res AC  : {{ resAC }}</pre>
+                    <pre>res ABD : {{ resABD }}</pre>
+                    <pre>res BD  : {{ resBD }}</pre>
+                    <pre>res ADE : {{ resADE }}</pre>
+                    <pre>res BE  : {{ resBE }}</pre>
+                </div>
+                <div>
+                    <strong># Summary (sum of response's exec)</strong>
+                    <pre>{{ summary }}</pre>
+                </div>
+            </div>
+            <div style="float:left; width:50%; font-size:0.8em">
+                <div>
+                    <strong># asyncAjax Request Broadcast Log</strong>
+                    <pre>{{ requestLog }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+{% endraw %}
+</html>

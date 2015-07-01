@@ -54,6 +54,7 @@
 
             // async task Queue
             var asyncQueue = $q.when(true);
+
             var taskCanceler = $q.defer();
 
             var countInProgress = 0;
@@ -128,8 +129,8 @@
              *     cancelPendingRequests
              *
              * @description
-             *     Cancel all requests in progress.
-             *     taskCanceler : timeout promise in AjaxRequestService.registerAsyncTask
+             *     Cancel all pending requests.
+             *     taskCanceler : timeout promise in asyncAjax.registerAsyncTask
              *     When this function call, resolves all requests force timeout event.
              */
             this.cancelPendingRequests = function() {
@@ -198,11 +199,33 @@
             };
 
             // broadcast handlers
-            this.onStart = getBroadcastHandler(REQUEST_STATUS.START, true);
-            this.onFinished = getBroadcastHandler(REQUEST_STATUS.FINISHED, true);
-            this.onError = getBroadcastHandler(REQUEST_STATUS.ERROR, true);
-            this.onCanceled = getBroadcastHandler(REQUEST_STATUS.CANCELED, true);
-            this.onAllFinished = getBroadcastHandler(REQUEST_STATUS.ALLFINISHED, false);
+            this.whenStart = getBroadcastHandler(REQUEST_STATUS.START, true);
+            this.whenFinished = getBroadcastHandler(REQUEST_STATUS.FINISHED, true);
+            this.whenError = getBroadcastHandler(REQUEST_STATUS.ERROR, true);
+            this.whenCanceled = getBroadcastHandler(REQUEST_STATUS.CANCELED, true);
+            this.whenAllFinished = getBroadcastHandler(REQUEST_STATUS.ALLFINISHED, false);
+
+            this.when = function(requestGroup) {
+                var requestGroupString = JSON.stringify(requestGroup);
+
+                var eventHandler;
+                var getHandler = function(status) {
+                    return function(callback) {
+                        $rootScope.$on(getBroadCastName(status, requestGroupString), callback);
+                        return eventHandler;
+                    }
+                }
+
+                eventHandler = {
+                    start: getHandler(REQUEST_STATUS.START),
+                    finished: getHandler(REQUEST_STATUS.FINISHED),
+                    error: getHandler(REQUEST_STATUS.ERROR),
+                    canceled: getHandler(REQUEST_STATUS.CANCELED)
+                };
+
+                // return event handler
+                return eventHandler;
+            };
         }
     ]);
 
