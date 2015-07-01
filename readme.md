@@ -3,12 +3,12 @@ AngularJS Async Ajax Request Wrapper
 
 ## Usage
 #### Add 'asyncAjax' module to your angular app
-```js
+```javascript
 var myApp = angular.module('myApp', ['asyncAjax'])
 ```
 
 #### get '$asyncAjax' Service to your controller
-```js
+```javascript
 myApp.controller('myController', [
 
     // controller dependencies
@@ -93,11 +93,11 @@ myApp.controller('myController', [
 # B Data
     {"data":[1,2,3,4]}
 # Broadcast Log
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:start
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:progress
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:start
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:progress
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:helloAjax:finished
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:bAjax:finished
-    Tue Jun 30 2015 19:56:35 GMT+0900 (KST) :: asyncAjax:allOvered
+    Wed Jul 01 2015 13:15:38 GMT+0900 (KST) :: asyncAjax:reqA:start
+    Wed Jul 01 2015 13:15:38 GMT+0900 (KST) :: asyncAjax:reqA:progress
+    Wed Jul 01 2015 13:15:38 GMT+0900 (KST) :: asyncAjax:reqB:start
+    Wed Jul 01 2015 13:15:38 GMT+0900 (KST) :: asyncAjax:reqB:progress
+    Wed Jul 01 2015 13:15:43 GMT+0900 (KST) :: asyncAjax:reqA:finished
+    Wed Jul 01 2015 13:15:46 GMT+0900 (KST) :: asyncAjax:reqB:finished
+    Wed Jul 01 2015 13:15:46 GMT+0900 (KST) :: asyncAjax:allOvered
 ```
