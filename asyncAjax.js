@@ -1,7 +1,7 @@
 /*
  *   AngularJS AsyncAjax v0.0.2
  *
- *   @author juwon.lee
+ *   @author ashon
  *
  *   MIT Licenced.
  */
